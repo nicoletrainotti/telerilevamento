@@ -136,6 +136,49 @@ plot(l2011$B3_sre, col=clred)
 plot(l2011$B4_sre, col=clif)
 dev.off()
 
+#24/03/22
+#plot of l2011 in the NIR channel (solo banda infrarosso vicino)
+plot(l2011$B4_sre)  #in alternariva posso usare l'indexing [4] plot(l2011$[[4]])
+
+#dal blu al rosso le freq diventano sempore piu grandi
+#posso usare solo 3 bande per volta nel plottaggio imm satellitare
+
+#monto layers RGB  r=3 banda 3 è il rossp
+plotRGB(l2011, r=3, g=2, b= 1, stretch = "lin")  #stretch = amplia i valori per vederli meglio (ottengo immagine a colori naturali)
+plotRGB(l2011, r=4, g=3, b= 2, stretch = "lin")   # ho shiftato tutte le bande, la pianta rifelette molto nell'NIR (ho montato la banda del NIR sulla componente r (red))--> tutto quello che rifeltte nell'NIR diventerà rosso
+plotRGB(l2011, r=3, g=4, b= 1, stretch = "lin") #ho inserito NIR nella componente g (green), la vegetazione, che riflette nel NIR diventa verde florescente  
+plotRGB(l2011, r=3, g=3, b= 4, stretch = "lin")  #monta banda 4 sul blu--> vegtezione è blu, cio che è giallo è suolo nudo
+
+
+#stretch lineare è fatto con linea, funzione lineare
+#stretch istogrammi uso una funzione s, i valori intermedi si alzano molto velocemte
+plotRGB(l2011, r=3, g=4, b= 1, stretch = "hist") #incremento di mo,to la differenziazione
+
+#multiframe, piu immagini con RGB VISIBLE (colori naturali) 
+# lin stretch sopra a false colors 
+# hist stretch 
+
+par(mfrow=c(1,2))  #messe lungo riga
+plotRGB(l2011, r=3, g=2, b= 1, stretch = "lin")
+plotRGB(l2011, r=4, g=3, b= 2, stretch = "lin")
+
+pdf("multiframe5.pdf")
+par(mfrow=c(2,1))  #messe lungo colonna
+plotRGB(l2011, r=3, g=2, b= 1, stretch = "lin")
+plotRGB(l2011, r=4, g=3, b= 2, stretch = "lin")
+dev.off()
+
+#confronto con immagine sat del 1988
+l1988 <- brick("p224r63_1988.grd")  #brick è una funzione che crea un imaggine da satellite con tanti layer all'interno
+plot(l1988)
+
+pdf("multiframe6.pdf")  #differnza tra 2011 e 1988
+par(mfrow=c(2,1))  #messe lungo colonna
+plotRGB(l1988, r=4, g=3, b= 2, stretch = "lin")
+plotRGB(l2011, r=4, g=3, b= 2, stretch = "lin")
+dev.off()
+
+
 # 25/03/22
 
 
