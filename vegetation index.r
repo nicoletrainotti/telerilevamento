@@ -124,3 +124,95 @@ plot(dvi_diff, col=cld)
 
 
 #così vediamo bene dove è avvenuta la deforestazione
+
+
+31/03/22
+#range DVI dipnde dai bit dell'immagine e faccio valore mIN e valroe mAX, ATTENZIONE perchè non è STANDARDIZZATO  (vedi reg 31.03 min 20 circa)
+#MAX DVI: quando NIR è max ed R min--> 255 MIN DVI è contrario quindi 0-255=-255
+#range DVI (8bit): -255 a 255
+#range DVI dipnde dai bit dell'immagine e faccio valore mIN e valroe mAX e poidivido per la loro somma perche STANDARDIZZO 
+#range NDVI (8bit): -1 a 1 (perche faccio MIN -255/255=-1)
+
+#range DVI (16bit): -65535 a 65535
+#range NDVI (16bit): -1 a 1
+
+#USO NDVI perchè mi permette di comparare immagini anche con bit diversi essendo che il range è uguale 
+
+#RISOLUZIONE RADIOMETRICA: quanti bit ci sono nell'immagine
+#calcolo DVI 1992
+dvi1992 <- l1992[[1]] - l1992[[2]]   #(sarebbe NIR, elemento 1- RED, elemento 2)
+dvi1992
+
+cl <- colorRampPalette(c('darkblue','yellow','red','black'))(100)
+# specifying a color scheme, lo decido io perchè ha solo 1 strato
+plot(dvi1992, col=cl)
+
+##calcolo DVI 2006
+dvi2006 <- l2006[[1]] - l2006[[2]]#(sarebbe NIR, elemento 1- RED, elemento 2)
+#or
+dvi2006 <- l2006$defor2_.1 - l2006$defor2_.2
+dvi2006
+
+plot(dvi2006, col=cl)
+
+
+#multiframe di confronto tra 1992 e 2006
+par(mfrow=c(2,1))
+plot(dvi1992, col=cl)
+plot(dvi2006, col=cl)  #giallo significa forte deforestazione
+
+#differnza di dvi tr 1992 e 2006
+dvi_dif <- dvi1992 - dvi2006
+cld <- colorRampPalette(c('blue','white','red'))(100)
+
+dev.off()
+
+plot(dvi_dif, col=cld)
+#immagine con valori alti uguali a rosso (forte deforestazione), mentre colori bassi è blu
+
+#ogni volta lancio library  e working directory
+
+#NDVI1992
+ndvi1992 = dvi1992/ (l1992[[1]]+l1992[[2]])
+
+#or
+ndvi1992 = ( l1992[[1]] - l1992[[2]]) / (l1992[[1]] + l1992[[2]])
+
+plot(ndvi1992, col=cl)
+
+#multiframe con plotRGB sopra e ndvi sotto
+
+par(mfrow=c(2,1))
+plotRGB(l1992, r=1, g=2, b=3, stretch = "lin")
+plot(ndvi1992, col=cl)
+#acqua del rio è azzurra perchè sembra suolo nudo infatti gran parte del fiume è cosi
+
+
+ndvi2006 = dvi2006/ (l2006[[1]]+l2006[[2]])
+plot(ndvi2006, col=cl)
+
+#multiframe 2006
+par(mfrow=c(2,1))
+plotRGB(l2006, r=1, g=2, b=3, stretch = "lin")
+plot(ndvi2006, col=cl)
+
+#multiframe NDVI1992 e NDVI2006
+par(mfrow=c(2,1))
+plot(ndvi1992, col=cl)  #ndvi alto
+plot(ndvi2006, col=cl)  #ndvi basso, vicno allo zero cioè suolo nudo perchè la foresta è stata distrutta
+
+#RStoolbox che serve per fare analisi dati
+#spectralIndices è una funzione che calcola indici spettrali come NDVI
+
+#AUTOMATIC CALC OF SPECTRAL INDICES
+#prima installo e carico con library RStoolbox
+
+install.packages("RStoolbox")
+library(RStoolbox)
+
+si1992 <- spectralIndices(l1992, green=3, red=2, nir=1)
+
+
+install.packages("rasterdiv")
+library(rasterdiv)
+plot(copNDVI)
