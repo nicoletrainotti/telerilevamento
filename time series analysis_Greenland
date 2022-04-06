@@ -1,0 +1,84 @@
+#RStoolbox che serve per fare analisi dati
+#spectralIndices è una funzione che calcola indici spettrali come NDVI
+
+#AUTOMATIC CALC OF SPECTRAL INDICES
+#prima installo e carico con library RStoolbox
+
+.libPaths("C:/Program Files/R/R-4.1.2/library")
+
+install.packages("RStoolbox")
+install.packages("rasterdiv")
+install.packages("rgdal")
+library(RStoolbox)
+library(rasterdiv)
+library(rgdal)
+
+
+si1992 <- spectralIndices(l1992, green=3, red=2, nir=1)
+plot(si1992, col=cl)
+
+si2006 <- spectralIndices(l2006, green=3, red=2, nir=1)
+plot(si2006, col=cl)
+
+
+#rasterdiv
+#copNDVI è ndvi di copernicus, è raster a 8 bit e riguarda ndvi di un set (media dal 1999 al 2017)
+#piu ce veg piu alto è lindice e quindi piu biomassa c'è --> stao ecositema è buono
+ 
+plot(copNDVI) #biomassa globale 
+#zone verde in foreste ad alte lat e f tropicali dove niomassa è max
+
+
+#time series analysis of Greendland LST data
+library(raster)
+
+setwd("C:/lab/greenland")
+
+#brick è uìfunione per caricare i layer MA sta volta ho 4 dati diversi LSD di 4 anni diversi
+#importo uno per uno
+
+lst2000 <- raster("lst_2000.tif")
+lst2005 <- raster("lst_2005.tif")
+lst2010 <- raster("lst_2010.tif")
+lst2015 <- raster("lst_2015.tif")
+
+plot(lst2000)  #la parte centrale è bianca ed è coperta da neve
+
+#esercizio plottare tutte le immagini
+
+plot(lst2005)
+plot(lst2010)
+plot(lst2015)
+
+cl2 <- colorRampPalette(c("blue", "lightblue", "pink", "red"))(100)
+par(mfrow=c(2,2))  #2000 le t piu basse sono piu estese rispetto altri anni
+plot(lst2000, col=cl2)
+plot(lst2005, col=cl2)
+plot(lst2010, col=cl2)
+plot(lst2015, col=cl2)
+
+#lapply è una funzione che prende una lista di files e applica una funzioen a tutta la lista
+#nel nsotro caso la f è raster da applicare alla lista
+
+#creo lista #list.files
+
+rlist <- list.files(pattern = "lst")#pattern è caratt comune di tutti i file
+rlist
+
+import <- lapply(rlist, raster)
+
+stack()  #blocco comune di tutti i dati
+
+tgr <- stack(import)  #stessa cosa di rasterbrick ma creato in modo diverso
+#invece che fare multiframe faccio lista, lapply e poi stack
+
+plot(tgr, col=cl2)#stessa cosa senza passare da multiframe
+
+plot(tgr$lst_2000, col=cl2)#plotto solo prima banda o layer
+#or
+plot(tgr[[1]], col=cl2)
+
+dev.off()
+
+plotRGB #plotto ai 3 colori
+plotRGB(tgr, r=1, g=2, b=3, stretch = "lin")  # banda blu ho lst_2015
