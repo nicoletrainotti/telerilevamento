@@ -60,6 +60,52 @@ ggplot() + geom_raster(sd3, mapping = aes(x=x, y=y, fill=layer))  #ggplot va vuo
 #fill è il tipo di riempimento e in questo caso uso la banda cioè il layer 
 #vedo che le zone di passagio tra prato a bosoc e crepacci sono chiare e sono le piu variabili
 
+#VARAIBILITY 2 on multivarite bands
+
+library(raster)
+library(RStoolbox)
+
+setwd("D:/lab/")
+
+siml <- brick("sentinel_similaun.png")
+
+#NIR 1
+#red
+#green
+
+ggRGB(siml, 1,2,3)
+ggRGB(siml, 3,1,2) #per evidenziare suolo nudo inverto  ordine NIR e infrarosso nel verde  (suolo diventa viola)
+
+
+#calcolo PCA su questa immagine
+
+simlPCA <- rasterPCA(siml)
+simlPCA  #call modello e mappa
+
+#quantq varianza è spiegata da ogni componente 
+summary(simlPCA$model)   #comp1 da sola spiega solo 77% perchè l'altra aveva range molot piu altro
+
+g1 <- ggplot() + geom_raster(simlPCA$map, mapping = aes(x=x, y=y, fill=PC1)) + scale_fill_viridis(option = "inferno") +
+  ggtitle("PC1") #valori piu alti correlati alla parte vegetale
+
+g3 <-  ggplot() + geom_raster(simlPCA$map, mapping = aes(x=x, y=y, fill=PC3)) + scale_fill_viridis(option = "inferno") +
+   ggtitle("PC3")   #con PC3 la banda da poche info
+ 
+g2 <-  ggplot() + geom_raster(simlPCA$map, mapping = aes(x=x, y=y, fill=PC2)) + scale_fill_viridis(option = "inferno") +
+  ggtitle("PC2")
+
+g1+g3
+
+#caloclo la var sulla PC1
+pc1 <- simlPCA$map[[1]]
+
+sd3 <- focal(pc1, matrix(1/9, 3, 3), fun=sd)
+
+ggplot() + geom_raster(sd3, mapping = aes(x=x, y=y, fill=layer)) + scale_fill_viridis(option = "inferno") +
+  ggtitle("Standard deviation of PC1")   #mette in evidenzai i punti dove ce discontinuità ovvero variabilità piu forte
+             
+#questi metodi di MUA servono per compattare i dati quindi è applicabile anche a dati tabellari
+
 
 library(viridis)#pachetto viridis per semplificare la visualizzazione dei colori nelle mappe
 
