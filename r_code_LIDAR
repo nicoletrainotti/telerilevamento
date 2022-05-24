@@ -1,0 +1,65 @@
+#TOPIC DATI LIDAR 20.05
+#sensore attivo,emette un impulso laser e calcola la dist sulla base del t di ritorno al sensore
+
+#point cloud
+#qualità dato dipende dalla dist dall'ogg, piu vicini piu la point cloud è accurata
+#cond ambientali e climatiche come nebbia e polvere puo influenzare molto 
+#se ce qualocsa di denso e fitto tutto l'impulso ritorna
+
+#BOSCO, primo ritorno è il pto piu alto cioè la superfice -> DSM (digital SURFACE MODEL) 
+#secosno impulso è il terrneo ->TERRAIN MODEL (DTM)
+
+#CHM = TSM- DTM   (Canopy high model)
+#tant indicatori stimambili, bosco diversivicato in altezza è piu eterogeneo e quindi piu biodiverso
+#calcolo CHM nei diversi anni per indagare la dviersa copertura
+
+#sensore montato su un satellite chiamato gedi, ha un arisoluzione bassa rispetto ai droni
+#pero copre tutto il mondo
+
+
+#TSL terrestial laser scan MA è fisso!
+#applicazioni -altezza canppy -eterogeneita habitat e biodiv - classific specie
+#DTM per frane o ghiacciai, archeologia
+#usato per infrastrutture, stime di superfici
+
+setwd("D:/lab/")
+dsm_2013 <- raster("D:/lab/dati_lidar/2013Elevation_DigitalElevationModel-0.5m.tif")
+dsm_2013  #info
+
+dtm_2013 <- raster("D:/lab/dati_lidar/2013Elevation_DigitalTerrainModel-0.5m.tif")
+
+ 
+chm_2013 <- dsm_2013 - dtm_2013
+
+chm_2013
+
+ggplot() + geom_raster(chm_2013, mapping = aes(x=x, y=y, fill=layer)) + scale_fill_viridis() +
+  ggtitle("CHM 2013 San Genesio")
+#vedo case piante e campi
+#se metto immagine in gis posso anche calcoalre altezza
+
+#dato 2004 che ha meno risoluzione
+dsm_2004 <- raster("D:/lab/dati_lidar/2004Elevation_DigitalElevationModel-2.5m.tif")
+dtm_2004 <- raster("D:/lab/dati_lidar/2004Elevation_DigitalTerrainModel-2.5m.tif")
+
+chm_2004 <- dsm_2004 - dtm_2004
+
+ggplot() + geom_raster(chm_2004, mapping = aes(x=x, y=y, fill=layer)) + scale_fill_viridis() +
+  ggtitle("CHM 2004 San Genesio")
+
+#difference chm_2004 e chm_2013
+diff_chm <- chm_2013-chm_2004  #hanno risoluione diverse quindi devo fare un resaple del dato
+
+#resample 2013 al 2004 cioe passo a risoluzione piu grossolana
+chm_2013r <- resample(chm_2013, chm_2004)  #ricampiono una immagine sulla base di un'altra
+
+dev.off()
+diff_chm <- chm_2013-chm_2004
+
+
+#aree scure diminuzione-->taglio aree chiare sono crescita alberi
+
+
+#reading the point cloud
+point_cloud <- readLAS("D:/lab/dati_lidar/point_cloud.laz")
+plot(point_cloud)
